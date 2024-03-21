@@ -1,0 +1,748 @@
+---
+title: "F1 Analysis"
+author: "Shivam Thakur"
+date: "02-12-2023"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include= FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r Libraries, include= FALSE}
+
+#install.packages("viridis")
+#install.packages('gganimate')
+#install.packages("viridis")
+#install.packages("hrbrthemes")
+#install.packages("viridis")
+#install.packages("maptools")
+#install.packages("sf")
+#install.packages("ggmap")
+#install.packages("knitr")
+#install.packages("leaflet")
+#install.packages("leaflet.extras")
+#install.packages("ggpubr")
+library(gganimate)
+library(leaflet)
+library(leaflet.extras)
+library(knitr)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(lubridate)
+library(tidyverse)
+library(corrplot)
+library(plotly)
+library(viridis)
+library(maps)
+library(maptools)
+library(sf)
+library(ggmap)
+library(tidyverse)
+library(dplyr)
+library(lubridate)
+library(tidyselect)
+library("anytime")
+library(ggplot2)
+library(viridis)
+library(plotly)
+library(ggplot2)
+library(tidyverse)
+library(hrbrthemes)
+library(scales)
+library(corrplot)
+library(ggalluvial)
+library(treemap)
+library(treemapify)
+library(plotly)
+library(RColorBrewer)
+library(lubridate)
+library(dplyr)
+library(tidyr)
+library(data.table)
+library(ggplot2)
+library(viridis)
+#library(magick)
+#library(packcircles)
+library(ggplot2)
+library(viridis)
+library(ggiraph)
+#library(circlize)
+library(gridExtra)
+library(ggpubr)
+```
+
+
+<style>
+  h1 {
+    color: #4E0101;
+  }
+</style>
+
+
+<style>
+  h2 {
+    color: #B02929;
+  }
+</style>
+
+
+<style>
+  h3 {
+    color:#FF0303;
+}
+</style>
+
+
+
+
+# Formula 1 World Championship Data Analysis
+
+![](/Users/shivamthakur/Desktop/Career/Portfolio/Projects/CVA/Project1/F1/logo1.jpeg)
+
+ 
+# Introduction and Problem Statement
+
+\text
+Formula One (F1) is one of the most popular sports in the world. It is the highest class of international racing for single-seater formula racing cars. Formula One is sanctioned by the Fédération Internationale de l’Automobile (FIA) which was established on 20 June 1904. Formula One was inaugurated on 13 May 1950 as the World Drivers’ Championship at Silverstone in the United Kingdom. In 1981 it became known as the FIA Formula One World Championship.
+
+Several races called Grand Prix are held all over the world over a season. These races taken together are called a Formula One season. The word ‘Formula” refers to a set of rules that all participating teams have to adhere to. Grand Prix is a French word that translates as grand prize in English. The races are run of tracks that are graded “1” by the FIA. Hence the name Formula One was adopted.
+
+The races take place on purpose-built tracks certified by the FIA. Most tracks are situated in remote locations well connected with cities. There are a few races such as the British Grand Prix and the Singapore Grand Prix that are held on closed public roads. Formula One is one of the premium forms of racing around the world and draws huge audiences.
+
+A driver participating in a Formula One race should hold a valid Super Licence issued by the FIA. The performance of the drivers and the constructors of the car are evaluated at the end of each race by a points system. At the end of a season, the FIA aggregates the points scored by each and awards two annual World Championships: one each for the drivers and the constructors.
+
+Formula 1 has fans all over the world and has been multi billion dollar business. The reason behind for us to pick this dataset is to bring some valuable insights from the dataset inorder to understand the performance of Formula 1 over the years and to extract key features. 
+
+Dataset URL: https://www.kaggle.com/datasets/rohanrao/formula-1-world-championship-1950-2020
+
+From the given dataset, we are trying to focus on three main perspectives: **Drivers, Constructors(Manufacturers) and Circuits** and try to do in-depth analysis for each \
+
+
+```{r dataframes, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+drivers <- read.csv("/Users/shivamthakur/Desktop/NEU/Spring2023/TA CVA2023/group assignment/Hackathon/3/F1-1/drivers.csv")
+results <- read.csv("/Users/shivamthakur/Desktop/NEU/Spring2023/TA CVA2023/group assignment/Hackathon/3/F1-1/results.csv")
+races <- read.csv("/Users/shivamthakur/Desktop/NEU/Spring2023/TA CVA2023/group assignment/Hackathon/3/F1-1/races.csv")
+driver_standings <- read.csv("/Users/shivamthakur/Desktop/NEU/Spring2023/TA CVA2023/group assignment/Hackathon/3/F1-1/driver_standings.csv")
+constructors <- read.csv('/Users/shivamthakur/Desktop/NEU/Spring2023/TA CVA2023/group assignment/Hackathon/3/F1-1/constructors.csv', na=c(''))
+constructor_standings <- read.csv('/Users/shivamthakur/Desktop/NEU/Spring2023/TA CVA2023/group assignment/Hackathon/3/F1-1/constructor_standings.csv', na=c(''))
+constructor_results <- read.csv('/Users/shivamthakur/Desktop/NEU/Spring2023/TA CVA2023/group assignment/Hackathon/3/F1-1/constructor_results.csv', na=c(''))
+results <- read.csv('/Users/shivamthakur/Desktop/NEU/Spring2023/TA CVA2023/group assignment/Hackathon/3/F1-1/results.csv', na=c(''))
+races <- read.csv('/Users/shivamthakur/Desktop/NEU/Spring2023/TA CVA2023/group assignment/Hackathon/3/F1-1/races.csv', na=c(''))
+circuits<-read.csv("/Users/shivamthakur/Desktop/NEU/Spring2023/TA CVA2023/group assignment/Hackathon/3/F1-1/circuits.csv") 
+status <- read.csv("/Users/shivamthakur/Desktop/NEU/Spring2023/TA CVA2023/group assignment/Hackathon/3/F1-1/status.csv")
+
+```
+
+
+## Drivers
+Formula 1 began in 1950 and since then many legendary drivers and teams have dazzled audiences around the world. From Juan Manuel Fangio to Alberto Ascari, Ayrton Senna to Michael Schumacher, Lewis Hamilton to Max Verstappen, F1 has crowned many champions over the years. In the world of Formula One (F1) racing, drivers play a crucial role as they are the ones who are behind the wheel and compete in races. The role of the driver in F1 is to control the car and achieve the best possible finish in each race.
+
+To be successful in F1, a driver must possess a combination of physical and mental skills, including quick reflexes, endurance, and the ability to make split-second decisions under pressure. They must also have a deep understanding of their car and the track, as well as the ability to work closely with their team to make informed decisions about strategy, tire choice, and other key elements of the race.
+
+Overall, the role of the driver in F1 is to push the limits of their car and their own abilities, and to compete at the highest level in the pursuit of victory.
+
+
+### To find Top 10 F1 drivers by number of wins till date
+
+Drivers are super starts when it comes to Formula 1 and here we analyze who are the top drivers who has secured most race wins.
+
+```{r Task 1,echo= FALSE, warning= FALSE, message=FALSE} 
+top_ten = merge(results,drivers,by="driverId")
+top_ten = merge(races,top_ten, by="raceId")
+top_ten <- top_ten %>%
+  filter(position == "1")
+
+top_ten$Driver_Name <- paste(top_ten$forename, top_ten$surname)
+
+top_ten <- top_ten %>%
+  group_by(driverId,Driver_Name) %>%
+  summarise(Number_of_wins=n(),.groups='drop') %>%
+  arrange(desc(Number_of_wins)) %>%
+  as.data.frame()
+
+top_ten <- head(top_ten,10)
+
+no_of_races = merge(results,drivers,by="driverId")
+no_of_races <- no_of_races %>%
+  group_by(driverId) %>%
+  summarise(Number_of_races=n(),.groups='drop') %>%
+  arrange(driverId) %>%
+  as.data.frame()
+
+top_ten = merge(no_of_races,top_ten,by="driverId")
+top_ten <- top_ten %>%
+  select('Driver_Name', 'Number_of_wins', 'Number_of_races')
+
+
+```
+
+```{r Task 1a, echo= FALSE, warning= FALSE, message=FALSE}
+
+ggplot(data = top_ten, aes(x=reorder(Driver_Name,Number_of_wins), y=Number_of_wins, fill=Driver_Name)) + 
+  geom_bar(stat = 'identity',width=0.5) +
+  geom_text(aes(label=Number_of_wins), hjust=1.6, color="white", size=3.5) +
+  theme_minimal() +
+  coord_flip() +
+  scale_fill_manual(values=c("Lewis Hamilton" = "#4D0202", "Michael Schumacher" = "#7C0B0B",
+                            "Sebastian Vettel" = "#832020", "Alain Prost" = "#A92A2A", 
+                            "Ayrton Senna" = "#B20808", "Max Verstappen" = "#C20808", 
+                            "Fernando Alonso" = "#EC4848", "Nigel Mansell" = "#FA6363", 
+                            "Jackie Stewart" = "#FB7676","Niki Lauda" = "#FF8A8A")) + 
+  ggtitle("Top 10 Drivers by Wins") +
+  theme_minimal() +theme(legend.position = "none")+
+  labs(
+    fill = "", 
+    color = "name",
+    y = "Number of Wins",
+    x = "Driver Names")
+```
+
+```{r Task 1b, echo= FALSE, warning= FALSE, message=FALSE}
+#top_ten$difference <- top_ten$Number_of_races - top_ten$Number_of_wins
+top_ten <- top_ten %>%
+  select('Driver_Name', 'Number_of_wins', 'Number_of_races')
+pivot_top_ten <- pivot_longer(top_ten, c(Number_of_wins, Number_of_races))
+
+pivot_top_ten<- pivot_top_ten %>% mutate (lable= c(103,310,32,358,53,300,91,308,31,192,41,162,51,202,25,174,27,100,35,163))
+
+pivot_top_ten%>% 
+ggplot( aes(x=reorder(Driver_Name,value), y=value, fill=name)) + 
+  geom_bar(position = 'stack', stat = 'identity',width=0.7,) +
+  geom_col( ) +
+  geom_text(aes(label=(lable)), hjust=1.5, color="White", size=3.5) +
+  theme_minimal() +
+  coord_flip() +
+  scale_fill_manual(values=c("#A90505","#FC5353"), labels = c("Races lost", "Races won")) +
+  ggtitle("Top 10 Drivers Wins Vs Races")+
+  theme_minimal() +
+  labs(
+    fill = "", 
+    color = "name",
+    y = "Number of Wins/Races",
+    x = "Drivers")
+```
+
+\text Lewis Hamilton and Michael Schumacher topped the list of F1 drivers' all-time victories comparisons in the histogram below. There has also been a supplementary stacked bar chart comparison of the Top 10 drivers' total races and victories. The graph suggests that there may be some correlation between a driver's win total and the number of races in which they have competed. \
+
+
+
+### To find historical driver nationality distribution since 1950 in the F1 championship.
+
+
+
+```{r Task 2, echo= FALSE, warning= FALSE, message=FALSE}
+drivers_nationality <- drivers %>%
+  group_by(nationality) %>%
+  summarise(Number_of_drivers=n(),.groups='drop') %>%
+  arrange(desc(Number_of_drivers)) %>%
+  as.data.frame()
+
+drivers_nationality <- head(drivers_nationality,10)
+
+#code for donut chart
+fig <- drivers_nationality %>% plot_ly(labels = ~nationality, values = ~Number_of_drivers,marker = list(colors = c("#4D0202", "#7C0B0B", "#920505", "#A70808","#BD0E0E","#C20808", 
+                            "#EC4848","#FA6363","#FB7676","#FF8A8A"),line = list(color = '#FFFFFF', width = 1)))
+fig <- fig %>% add_pie(hole = 0.6)
+fig <- fig %>% layout(title = "Historical Driver Nationality Distribution since 1950",
+                      xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+                      yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+fig
+```
+
+\text We must go back to World War II and the successful aerial battles over the English Channel against the Germans in order to comprehend why F1 had the highest number of British drivers and champions. The British were compelled to construct enormous airfields as a result of the ongoing aerial conflict in order to protect against the Germans. These airfields were completely unusable following World War II and the fall of Nazi Germany until a group of British motor enthusiasts decided to transform them into imaginative race circuits. This quickly drew racing car drivers and engineers who had been working on intricate fighter jet engines during the war to create the best race vehicles and test them on the now-converted race tracks. One of the airfields later developed into The Silverstone Circuit, the "Mecca" of motorsport. Many F1 teams have established their headquarters in the area as a result of the flow of racing talent to Britain over the years. By 2022, six out of ten contractors will establish offices there. \
+
+
+
+### To find most number of wins by a driver in a single season.
+
+```{r Task 3, echo= FALSE, warning= FALSE, message=FALSE}
+driver_position <- merge(drivers,driver_standings,by="driverId")
+driver_position <- merge(driver_position,races,by="raceId")
+
+positions <- driver_position %>%
+  filter(position == "1") %>%
+  group_by(surname,year) %>%
+  summarise(Number_of_wins=max(wins,na.rm=TRUE),.groups='drop') %>%
+  arrange(desc(Number_of_wins)) %>%
+  as.data.frame()
+
+positions <- head(positions,20)
+colnames(positions)[1] = "Name"
+colors <- c("#140101", "#6A0303", "#FEB390", "#AF7878", "#FAB2B2", "#DB4804", "#EC4848", "#E7E2E2", "#FC0202")
+
+fig <- plot_ly(positions,labels = ~Name, x = ~year, y = ~Number_of_wins, type = 'scatter', color = ~Name, colors = colors, mode = 'markers',size = ~Number_of_wins, sizes = c(10, 50),
+        marker = list(sizemode = 'diameter'),
+        hoverinfo = 'text',
+        text = ~paste('Year:', year, '<br>Name:', Name, '<br>Wins:', Number_of_wins))
+
+fig <- fig %>% layout(title = 'Most wins by a driver in a single season',
+         xaxis = list(showgrid = FALSE, title="Year"),
+         yaxis = list(showgrid = FALSE, title="Number of Wins")) 
+fig
+```
+\text
+From the chart above, we can see that Max Verstappen holds the record of highest number of wins (15) in 2022 season. NExt, Vettel and Schumacher hold the record for the equal victories in a season combined. Both in the years 2004 and 2013, respectively, were completely omnipresent. Both Schumacher  and Hamilton  have compelling arguments for being the greatest F1 drivers of all time, therefore picking either one as the greatest F1 driver of all time wouldn't be inappropriate. \
+
+## Constructors
+In Formula 1, constructors are the businesses, organizations, or producers in charge of designing and building the racing vehicles. Two racing drivers and a racing team from each constructor participate in each Grand Prix for World Championship points.
+A crucial component of the sport is the Formula 1 constructors. Without the constructor’s championship, no team would strive as hard for success as they do because the constructors are the teams that support the vehicles and the drivers.
+
+
+
+### Who are the Most successful constructors ?
+
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+c_p <- merge(x=constructors,y=constructor_results,by="constructorId")
+cG <- c_p %>%
+  select(name, nationality, points) %>%
+  group_by(name, nationality) %>% 
+  summarise(total_points = sum(points)) %>% 
+  arrange(-total_points) %>% head(10)
+
+
+ggplot(data=cG) + 
+  geom_bar(mapping=aes(x=total_points, y=reorder(name, total_points), fill=name), 
+           stat = 'Identity') + 
+  geom_text(aes(x=total_points, y=reorder(name, total_points),label=total_points), hjust=1.5, color="White", size=3.5) +
+  scale_fill_manual("Constructor", 
+                                values=c("Ferrari" = "#750101", "Mercedes" = "#9E1010",
+                                            "Red Bull" = "#C21313", "McLaren" = "#D52222",
+                                            "Williams" = "#AF8B84", "Renault" = "#AF8B84",
+                                            "Force India" = "#AF8B84", "Team Lotus" = "#AF8B84",
+                                            "Benetton" = "#AF8B84", "Lotus F1" = '#AF8B84')) +
+  labs(x="Total Points", y="", 
+       caption="The colors of the bar match the color of the latest car of the constructor\n (Team Lotus (1958-1994) is different from Lotus F1 (2012-2015))") +
+  theme_minimal() + theme(plot.caption = element_text(hjust = 0.5))+theme(legend.position = "none")
+
+```
+
+
+\text The bar graph shows top 10 constructors successful constructors based on the total points earned. Ferrari, Mercedes, Redbull, McLaren turn out to be the most successful constructors with more than 5000 points. \
+
+
+
+### Most successful Constructor over last decade (Top 4 Constructor points comparison)
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+## Top 4 Constructor points comparison
+
+c_pt <- merge(x=constructors,y=constructor_results,by="constructorId") 
+c_pt <- merge(x=races,y=c_pt,by="raceId") 
+
+# calculating points per year sum
+c_pt <- c_pt %>%
+  group_by(year, constructorId, name.y) %>%
+  summarize(points_y = sum(points)) %>%arrange(desc(points_y))
+
+# Top 4 teams firltering
+c_pt <- c_pt %>% filter(name.y %in% c('Red Bull','Mercedes', 'McLaren','Ferrari'))
+c_pt <- c_pt %>%filter(year >= 2010 & year <= 2021)
+
+c_pt <- c_pt %>% 
+  rename(Constructor = name.y)
+
+f <- ggplot(data = c_pt,aes(x=year, y=points_y,  colour=(Constructor))) +
+  geom_line( size=1) + 
+  geom_point() +
+  scale_color_manual("Constructor", 
+                                values=c("Ferrari" = "#580101", "Mercedes" = "#AE5252",
+                                            "Red Bull" = "#FE0303", "McLaren" = "#FA8888"))+
+  facet_wrap(~c_pt$Constructor) +
+  labs(x = "Years",
+       y = "Points per Year",
+       color = 'Constructor',
+       title = "Points per Year Comparison for Top 4 Teams")  +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  transition_reveal(year) 
+
+animate(f, end_pause = 30,fps = 5)
+```
+
+
+
+\text The graphic shows that Mercedes has regularly dominated the points, but in recent years, the other teams have begun to catch up and challenge them. It appears like Mercedes’ golden age is about to come to an end, or at the very least, they will have to battle hard to survive \
+
+
+
+### Constructor wins by Origin Country
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(packcircles)
+p <- merge(x = results, y = constructors, by = "constructorId", all = TRUE)
+r <- p %>% 
+  select(name,raceId,position,nationality) %>%
+  group_by(name,raceId,position) %>% 
+  filter(position == 1) %>% 
+  transform(position = as.numeric(position))
+rsC <- r %>% 
+  group_by(nationality) %>% 
+  summarise(first_places = sum(position)) %>% 
+  arrange(-first_places) %>% 
+  mutate(Percent_Of_Total = percent(first_places/sum(first_places)))
+
+# text you want to display
+rsC$text <- paste("Nationality: ",rsC$nationality, "\n", "Number of Wins:", rsC$first_places,'\n','Percentage of Total wins: ',rsC$Percent_Of_Total)
+
+# layout
+packing <- circleProgressiveLayout(rsC$first_places, sizetype='area')
+rsC <- cbind(rsC, packing)
+dat.gg <- circleLayoutVertices(packing, npoints=50)
+
+#plot
+p <- ggplot() + 
+  geom_polygon_interactive(data = dat.gg, aes(x, y, group = id, fill=rsC$first_places[id], 
+                                              tooltip = rsC$text[id], data_id = id), alpha=10) +
+  scale_fill_gradient(low='#FE3B3B', high='#4E0202') +
+  geom_text(data = rsC, aes(x, y, label = nationality), size=3, color="white") +
+  theme_void() + 
+  theme(legend.position="none", plot.margin=unit(c(0,0,0,0),"cm") ) + 
+  coord_equal()+
+  labs(title = "Number of Wins by Constructor origin country ")
+
+# Turn it interactive
+ggiraph(ggobj = p, width_svg = 7, height_svg = 7)
+
+```
+\text Bristish constructors has won more number of times (494 times) as compared to other nationalities. Constructors from Irish, Canadian and Japanese nationalities have won the lowest number of times \
+
+
+
+
+### Max Speed Dirstribution by Constructors
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE,}
+### Constructors max speed for the season 2019 - 2021
+rac_f <- races %>% filter(year >= 2019 & year <= 2021)
+rac_f <- rac_f[,-c(6:8)]
+
+#merge the datasets required
+rac_c <- merge(x = rac_f, y = constructor_results)
+
+clean_c <- constructors %>% select(constructorId,name,nationality)%>% rename(cons_name = name)
+
+# from results df, Selecting fastestLapSpeed and constructorId
+clean_res <- results %>% select(constructorId, raceId, fastestLapSpeed)
+
+# filter on max speed per race and constructor
+cons_ms <- merge(x = clean_c, clean_res) %>% filter(!is.na(fastestLapSpeed))
+
+missing_check <- sapply(cons_ms, function(x) sum(is.na(x)))
+missing_check <- missing_check[missing_check > 0]
+
+# merge columns
+cons_ms$fastestLapSpeed <- as.numeric(cons_ms$fastestLapSpeed)
+maximumSpeed <- merge(x = cons_ms, rac_c, on = "raceId")
+
+
+#plot
+maximumSpeed %>% 
+  mutate(cons_name = fct_reorder(cons_name, fastestLapSpeed),nationality_label = paste("Nationality:", nationality)) %>% 
+  ggplot(aes(x= fastestLapSpeed, y = cons_name)) +
+  geom_violin(aes(fill = nationality), width = 0.5, size = 0.1) +
+  scale_fill_manual_interactive("Nationality", 
+                                values=c("American" = "#400101", "Austrian" = "#7C0B0B",
+                                            "British" = "#AA2217", "French" = "#DC0303",
+                                            "German" = "#FC4646", "Italian" = "#F17F7F",
+                                            "Swiss" = "#FFBABA")) +
+  geom_boxplot(width = 0.2, size = 0.05, alpha = 0.3, color = "#FFB202") +
+  ggtitle("Max speed per lap by Constructor (2019-2021)")+
+  theme_minimal() +
+  labs(
+    y = NULL,
+    x = "Fastest Lap Speed (KM/H)")
+
+```
+
+\text Even though the maximum speed distribution among all constructors is essentially the same, even a slight increase in speed can have a significant impact in this sport. Since they dominated the seasons based on speed, the Mercedes vehicles achieved the highest speed, which is also compatible with the cars having a better build and also providing better outcomes. \
+
+## Circuits
+
+
+### Altitude dependency on engine failure 
+
+In higher altitudes, air density is thinner; therefore, less air passes through the radiators and intake valves to cool down the brakes and engine. Also, engines need oxygen to instantiate combustion, a lack of which leads to performance loss in a car.
+The primary data points for such scenarios are overheating of transmission and engine components
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE } 
+
+df_merge <- merge(x=circuits, y=races, by="circuitId", all.x=TRUE) %>% 
+  merge(.,y=results, by="raceId",all.x=TRUE) %>%
+  merge(.,y=status, by="statusId")
+
+df_change <- subset(df_merge,select=-c(url.y,url.x,time.y,url.y))
+
+df_rename <- rename(df_change,"name"="name.x","time"="time.x")
+
+
+df_filter <- filter(df_rename,status=='Transmission'|status=='Engine'|status=='Overheating') %>% 
+  filter(.,year>2015)
+
+df_res <- df_filter %>% 
+  group_by(name,alt) %>%
+  summarise(NUMBER_OF_ENGINE_FAILURES=n(),
+            .groups='drop') %>% drop_na()  %>%
+    merge(.,y=circuits, by="name") %>% subset(.,select=c(name,alt.x,NUMBER_OF_ENGINE_FAILURES,lat,lng)) %>%   arrange(desc(NUMBER_OF_ENGINE_FAILURES))%>%
+  slice(1:10) %>% rename(.,altitude=alt.x)
+
+
+###graph plotting 
+
+kable(df_res %>% select(-lng, -lat))
+
+
+TopMap <- df_res %>% select(lat, lng, name, NUMBER_OF_ENGINE_FAILURES)
+
+labels <- paste0("<strong>Circuit Name </strong>", df_res$name, 
+                 "<br><strong>Altitude: </strong>", df_res$alt.x,
+                 "<br><strong>No of Engine Failures </strong>", df_res$NUMBER_OF_ENGINE_FAILURES) %>% lapply(htmltools::HTML)
+
+leaflet(df_res) %>%
+  setView(lng=-96, lat=37.8, zoom=4) %>%
+  addTiles() %>%
+  addProviderTiles("CartoDB.Positron") %>%
+  addCircleMarkers(~lng, ~lat, color = "red", radius=~sqrt(NUMBER_OF_ENGINE_FAILURES), label = labels)
+
+
+```
+
+
+\text 
+From the above choropleth map, we can identify distribution of circuits around the globe and as expected,the Mexican circuit poses the highest overheating issues, due to which cars had to retire, followed by the Red Bull Ring. But Bahrain GP, close to sea level, sees the same amount of trouble. This may be due to high track temperatures because of the geographic location. \
+
+
+### Which circuits has the Fastest LapSpeed Record? 
+
+Each circuit has its one features and parameters like altitude and the design of the circuit influnces performance of the drivers. Here we try to figure out Fastest Lap Speed of top Circuits used in F1
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+
+df_t2 <- results %>% filter(.,statusId ==1) %>%
+  merge(.,races, by="raceId") %>% 
+  merge(.,circuits,by="circuitId") %>%
+        subset(.,select=c(circuitId,circuitRef,name.y,fastestLapSpeed)) %>%
+  group_by(circuitId,circuitRef,name.y) %>%
+  summarise(fastestLapSpeeds = max(fastestLapSpeed),
+            .groups='drop') %>% 
+  arrange(desc(fastestLapSpeeds))%>%
+  slice(1:10) 
+
+
+##plotting gauge chart
+library(plotly)
+##monza
+
+df_monza <- filter(df_t2,circuitRef=="monza")
+
+fig1 <- plot_ly(
+    domain = list(x = c(0, 1), y = c(0, 1)),
+    value = df_monza$fastestLapSpeeds,
+    title = list(text = "Fastest Lap Speed (km/h)- Monza Circuit"),
+    type = "indicator",
+    mode = "gauge+number",
+    gauge = list(
+    axis = list(range = list(NULL, 400), tickwidth = 1, tickcolor = "FE3B3B"),
+    bar = list(color = "4E0202"),
+    bgcolor = "white",
+    borderwidth = 2,
+    bordercolor = "gray")
+    ) 
+
+
+fig1 <- fig1 %>%
+  layout(margin = list(l=20,r=30))
+
+fig1
+
+##silverstone
+
+df_st <- filter(df_t2,circuitRef=="silverstone")
+
+fig2 <- plot_ly(
+    domain = list(x = c(0, 1), y = c(0, 1)),
+    value = df_st$fastestLapSpeeds,
+    title = list(text = "Fastest Lap Speed (km/h)- Silverstone Circuit"),
+    type = "indicator",
+    mode = "gauge+number",
+    gauge = list(
+    axis = list(range = list(NULL, 400), tickwidth = 1, tickcolor = "FE3B3B"),
+    bar = list(color = "4E0202"),
+    bgcolor = "white",
+    borderwidth = 2,
+    bordercolor = "gray")
+    ) 
+
+
+fig2 <- fig2 %>%
+  layout(margin = list(l=20,r=30))
+
+fig2
+
+
+
+##redbull ring
+
+df_rb <- filter(df_t2,circuitRef=="red_bull_ring")
+
+fig3 <- plot_ly(
+    domain = list(x = c(0, 1), y = c(0, 1)),
+    value = df_rb$fastestLapSpeeds,
+    title = list(text = "Fastest Lap Speed (km/h)- Red bull ring Circuit"),
+    type = "indicator",
+    mode = "gauge+number",
+    gauge = list(
+    axis = list(range = list(NULL, 400), tickwidth = 1, tickcolor = "FE3B3B"),
+    bar = list(color = "#FE3B3B"),
+    bgcolor = "white",
+    borderwidth = 2,
+    bordercolor = "gray")
+    ) 
+
+
+fig3 <- fig3 %>%
+  layout(margin = list(l=20,r=30))
+fig3
+
+
+
+##bahrain
+
+df_bh <- filter(df_t2,circuitRef=="bahrain")
+
+fig4 <- plot_ly(
+    domain = list(x = c(0, 1), y = c(0, 1)),
+    value = df_bh$fastestLapSpeeds,
+    title = list(text = "Fastest Lap Speed (km/h)- Bahrain Circuit"),
+    type = "indicator",
+    mode = "gauge+number",
+    gauge = list(
+    axis = list(range = list(NULL, 400), tickwidth = 1, tickcolor = "FE3B3B"),
+    bar = list(color = "#FE3B3B"),
+    bgcolor = "white",
+    borderwidth = 2,
+    bordercolor = "gray")
+    ) 
+
+
+fig4 <- fig4 %>%
+  layout(margin = list(l=20,r=30))
+
+fig4
+
+
+#grid.arrange(fig1, fig2, fig3, fig4, nrow = 2)
+
+
+```
+
+\textcolor{red}\
+
+We can see that the Monza circuit in Italy has the Fastest Lap speed of 257.3 km/h by Rubens Barichello on 12 September 2004 when he was with Ferrari team he made this achievement. This circuit has a moderate altitude level when compared to others and the driver has achieved this fleat. Following it is the Silverstone circuit in Uk with 244 km/h fast speed. Bahrain International Circuit has record of 230 km/h even though it is located very close to sea level.  \
+
+
+
+### How is the performance of drivers been in each circuit? 
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+
+df_t3 <- merge(circuits,races, by="circuitId") %>%
+        subset(.,select=c(circuitId,circuitRef,name.x, raceId)) %>%
+  merge(.,results, by="raceId")%>%
+        subset(.,select=c(circuitId,circuitRef,name.x, raceId,driverId)) %>%
+  merge(.,drivers, by="driverId")%>%
+          subset(.,select=c(circuitId,circuitRef,name.x, raceId,driverId,driverRef,forename,surname)) 
+
+
+df_t3_res <- df_t3 %>% 
+  group_by(driverRef,circuitRef) %>%
+  summarise(Number_of_wins=n(),.groups='drop') %>%
+  arrange(desc(Number_of_wins)) %>%
+  as.data.frame() %>% filter(.,Number_of_wins >10)
+  
+
+
+##spider chart plotting 
+##hamilton
+df_ham <- filter(df_t3_res, driverRef == 'hamilton')
+plot_14 <- ggplot(df_ham, aes(x = as.factor(circuitRef), y = Number_of_wins)) +
+  geom_bar(stat = "identity",fill=alpha("Red",1)) + ylim(0,20) +
+  coord_polar(start = 0) +
+  labs(title="Number of Wins by Circuit- Lewis Hamilton",x="Circuit Names" ,y="Total Wins" )+ theme_minimal()+theme(plot.title = element_text(size = 08))
+
+#plot_14
+
+##vettel
+df_vet <- filter(df_t3_res, driverRef == 'vettel')
+plot_15 <- ggplot(df_vet, aes(x = as.factor(circuitRef), y = Number_of_wins)) +
+  geom_bar(stat = "identity",fill=alpha("Red",1)) + ylim(0,20) +
+  coord_polar(start = 0) +
+  labs(title="Number of Wins by Circuit-Sebastian	Vettel",x="Circuit Names" ,y="Total Wins" )+ theme_minimal()+theme(plot.title = element_text(size = 08))
+
+#plot_15
+
+##alonso
+df_alo <- filter(df_t3_res, driverRef == 'alonso')
+plot_16 <- ggplot(df_alo, aes(x = as.factor(circuitRef), y = Number_of_wins)) +
+  geom_bar(stat = "identity",fill=alpha("Red",1)) + ylim(0,20) +
+  coord_polar(start = 0) +
+  labs(title="Number of Wins by Circuit-Fernando	Alonso",x="Circuit Names" ,y="Total Wins" )+ theme_minimal() +theme(plot.title = element_text(size = 08))
+
+#plot_16
+
+##barrichello
+df_bar <- filter(df_t3_res, driverRef == 'barrichello')
+plot_17<- ggplot(df_bar, aes(x = as.factor(circuitRef), y = Number_of_wins)) +
+  geom_bar(stat = "identity",fill=alpha("Red",2)) + ylim(0,20) +
+  coord_polar(start = 0) +
+  labs(title="Number of Wins by Circuit-Rubens	Barrichello",x="Circuit Names" ,y="Total Wins" )+
+  theme_minimal()+ theme(plot.title = element_text(size = 08))
+  
+  
+
+#plot_17
+
+grid.arrange(plot_14, plot_15, plot_16, plot_17, nrow = 2)
+
+
+```
+
+\text  
+
+From the above spider charts, we can infer that Lewis Hamilton has an even records of wins across the circuits with high of 17 wins in silverstone circuit whereas the other drivers have distributed records across the circuits. Ruben Barrichello has a recordhigh of 19 wins in "catalunya" circuit making it the highest record of wins in a particular circuit. Using Spider chart is an optimal wins to understand the data here for the variation in the distribution of number of wins. \
+
+
+
+
+# Conclusion
+Learnt working with dataframes in R and discovered functionality of various functions from different libaries. Learnt dealing with missing values, manipulating, filtering, rearranging the data, calculating mean values for the columns in the dataframe as well as performing string and date operations. Got to know the working of group_by(), summarize(),  and many other functions in order to work upon multiple columns from the dataset. Learnt working with spread() and converted long dataset to wide format. Answering the given questions helped me unearth hidden facts from the dataset.
+
+This assignment also gave us good exposure to domain knowledge of Formula 1 which was relatively new to us. We learnt more of the terminologies used in it and also some key aspects of the sport.The study presented above demonstrates that Mercedes dominated F1 from 2013 to 2019. This is also consistent with the top driver of all time, Lewis Hamilton, who has 99 Grand Prix Championships. Red Bull is the team that appears to be catching up to Mercedes and giving them a run for their money in recent years. One of the primary concerns I intended to answer with this study was whether there is a relationship between races and victories. This requires more research and a more complete analysis that includes other variables that could influence the number of wins. Although it appears that both the Top 2 drivers, L. Hamilton and M. Schumacher, were able to win more races due to the number of races they participated in, this is not consistent with a few other drivers, such as F.Alonso, who, despite being in the Top 10, has a large gap between his number of races and number of wins.
+
+Overall, the analysis of the F1 World Championship in R provides a comprehensive and in-depth look at one of the world's most exciting and prestigious motorsports events. Whether you are a fan of the sport or simply interested in using data analysis to gain insights into complex systems, the F1 World Championship is a fascinating and endlessly rewarding subject for analysis. 
+
+# References
+
+1. https://www.kaggle.com/datasets/rohanrao/formula-1-world-championship-1950-2020
+2. https://rpubs.com/alisial/formula1-analysis
+3. https://plotly.com/r/gauge-charts/
+4. https://ggplot2.tidyverse.org/reference/geom_polygon.html
+5. https://htmlcolorcodes.com/
+
+
+
+
+
