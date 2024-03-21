@@ -1,5 +1,8 @@
 # Portfolio
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 91c9d9068fee8bf3951ec1ec3a3daacc13d092f8
 
 # 💫 About Me:
 - 👋Hi, I’m @git0ST<br>- 👀 I’m interested in Data Analytics and Data Science<br>- 🌱 I’m currently absorbing Time Series Model, LLM and GenAi.<br>- 💞️ I’m looking to collaborate on any of the above topics and open to finding new opportunities<br>- 📫 How to reach me info.shivamthakur0@gmail.com
@@ -22,6 +25,9 @@
 [![](https://visitcount.itsvg.in/api?id=Git0ST&icon=0&color=0)](https://visitcount.itsvg.in)
 
 <!-- Proudly created with GPRM ( https://gprm.itsvg.in ) -->
+<<<<<<< HEAD
 =======
 >>>>>>> parent of 095d990 (Update README.md)
+=======
+>>>>>>> 91c9d9068fee8bf3951ec1ec3a3daacc13d092f8
  
